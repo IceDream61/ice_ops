@@ -1,4 +1,5 @@
 import os
+import time
 import json
 from datetime import datetime
 
@@ -26,7 +27,15 @@ def restart():
         print('此端口不存在')
 
 
+def detect():
+    os.system('free -m > free.log')
+    time.sleep(1)
+    with open('free.log', 'r') as f:
+        print(f.read())
+
+
 Tasks = {
+    'detect': {'func': detect, 'comment': "监控机器使用情况"},
     'restart': {'func': restart, 'comment': "重启工作环境"},
     'q': {'func': None, 'comment': "退出"},
     '<Return>': {'func': None, 'comment': "直接回车，刷新一下"},
