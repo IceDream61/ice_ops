@@ -1,7 +1,9 @@
 import os
+import re
 import time
 import json
 from datetime import datetime
+from lib import selectstrings
 
 
 def restart_docker_compose(port, path):
@@ -28,33 +30,41 @@ def restart():
 
 
 def detect():
+    time.sleep(0.1)
+    with open('n_core.log', 'r') as f:
+        n_core = f.read()[:-1]
+        print('    核数: {}'.format(n_core))
+    # 内存
     os.system('free -m > free.log')
-    time.sleep(1)
+    time.sleep(0.1)
     with open('free.log', 'r') as f:
-        print(f.read())
+        line = f.readlines()[1]
+        name, total, used, free, shared, buff_cache, available, _ = re.split(r'\s+', line)
+        print('    可用内存: {:.2f}G / {:.2f}G'.format(float(available)/1024.0, float(total)/1024.0))
+        #TODO detect per seconds, and generate reports per hour/day?
+#       import pdb; pdb.set_trace()
 
 
-Tasks = {
-    'detect': {'func': detect, 'comment': "监控机器使用情况"},
-    'restart': {'func': restart, 'comment': "重启工作环境"},
-    'q': {'func': None, 'comment': "退出"},
-    '<Return>': {'func': None, 'comment': "直接回车，刷新一下"},
-}
+orders = [
+    {'name': 'detect', 'func': detect, 'comment': "监控机器使用情况"},
+    {'name': 'restart', 'func': restart, 'comment': "重启工作环境"},
+]
 
 def ui():
     while True:
         print('> 你要做什么：')
-        for name, info in Tasks.items():
-            print('    {:<10}: {}'.format(name, info['comment']))
+        for info in orders:
+            print('    {:<10}: {}'.format(info['name'], info['comment']))
         print('> ', end='')
-        order = str(input())
-        if order == 'q':
+        sc = str(input())
+        rs = selectstrings(orders, "name", sc)
+        if len(rs) == 0:
+            print("no match, input again")
+        elif len(rs) == 1:
+            rs[0]['func']()
             break
-        elif order == '':
-            pass
-        elif order in Tasks:
-            Tasks[order]['func']()
         else:
             print('此任务不存在，请重新输入')
+        print()
 
 ui()
