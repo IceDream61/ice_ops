@@ -30,6 +30,7 @@ def restart():
 
 
 def detect():
+    os.system('cat /proc/cpuinfo| grep "processor"| wc -l > n_core.log')
     time.sleep(0.1)
     with open('n_core.log', 'r') as f:
         n_core = f.read()[:-1]
