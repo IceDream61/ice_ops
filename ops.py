@@ -43,11 +43,24 @@ def detect():
         name, total, used, free, shared, buff_cache, available, _ = re.split(r'\s+', line)
         print('    可用内存: {:.2f}G / {:.2f}G'.format(float(available)/1024.0, float(total)/1024.0))
         #TODO detect per seconds, and generate reports per hour/day?
+    # CPU
+    #TODO IO
+    os.system('iostat -y > cpu_io.log')
+    time.sleep(0.1)
+    with open('cpu_io.log', 'r') as f:
+        lines = f.readlines()
+        idle_cpu_percent = re.split(r'\s+', lines[3])[-2]
+        print('    闲置CPU: {}%'.format(idle_cpu_percent))
 #       import pdb; pdb.set_trace()
+
+
+def watch():
+    os.system('watch -n 1 "free -m && iostat -y"')# && nivdia-smi"')
 
 
 orders = [
     {'name': 'detect', 'func': detect, 'comment': "监控机器使用情况"},
+    {'name': 'watch', 'func': watch, 'comment': "持续监控机器使用情况（Ctrl+c退出）"},
     {'name': 'restart', 'func': restart, 'comment': "重启工作环境"},
 ]
 
