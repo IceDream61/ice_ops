@@ -30,24 +30,24 @@ def restart():
 
 
 def detect():
-    os.system('cat /proc/cpuinfo| grep "processor"| wc -l > n_core.log')
+    os.system('cat /proc/cpuinfo| grep "processor"| wc -l > /home/zijie0/ops/n_core.log')
     time.sleep(0.1)
-    with open('n_core.log', 'r') as f:
+    with open('/home/zijie0/ops/n_core.log', 'r') as f:
         n_core = f.read()[:-1]
         print('    核数: {}'.format(n_core))
     # 内存
-    os.system('free -m > free.log')
+    os.system('free -m > /home/zijie0/ops/free.log')
     time.sleep(0.1)
-    with open('free.log', 'r') as f:
+    with open('/home/zijie0/ops/free.log', 'r') as f:
         line = f.readlines()[1]
         name, total, used, free, shared, buff_cache, available, _ = re.split(r'\s+', line)
         print('    可用内存: {:.2f}G / {:.2f}G'.format(float(available)/1024.0, float(total)/1024.0))
         #TODO detect per seconds, and generate reports per hour/day?
     # CPU
     #TODO IO
-    os.system('iostat -y > cpu_io.log')
+    os.system('iostat -y > /home/zijie0/ops/cpu_io.log')
     time.sleep(0.1)
-    with open('cpu_io.log', 'r') as f:
+    with open('/home/zijie0/ops/cpu_io.log', 'r') as f:
         lines = f.readlines()
         idle_cpu_percent = re.split(r'\s+', lines[3])[-2]
         print('    闲置CPU: {}%'.format(idle_cpu_percent))
