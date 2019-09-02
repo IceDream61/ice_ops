@@ -1,2 +1,3 @@
 port_info.json
 __pycache__/*
+*.log
